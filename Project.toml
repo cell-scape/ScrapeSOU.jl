@@ -1,0 +1,13 @@
+name = "ScrapeSOU"
+uuid = "30473b9a-2775-43f5-a0ed-1619628d6fee"
+authors = ["Bradley Dowling <brad.dowling@protonmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
