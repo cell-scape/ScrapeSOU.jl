@@ -60,11 +60,11 @@ function argparser()
             help = "Postgres Password"
             arg_type = String
             default = "postgres"
-        "--hostname", "-n"
+        "--host"
             help = "Hostname/path"
             arg_type = String
             default = "/var/run/postgresql"
-        "--port", "-p"
+        "--port"
             help = "Port"
             arg_type = Int
             default = 5432
@@ -97,7 +97,7 @@ julia> julia_main()
 function julia_main()::Cint
     ap = argparser()
     args = parse_args(ARGS, ap, as_symbols=true)
-    conn = connect(args[:user], args[:pass], args[:hostname], args[:port], args[:dbname])
+    conn = connect(args[:user], args[:pass], args[:host], args[:port], args[:dbname])
     try
         @info "Getting list of links..."
         html = scrape(BASE_PATH * LINKS)
