@@ -258,17 +258,17 @@ function local_html_links(html, filename::String, dirname::String="speeches")
         write(f, "</head>\n")
         write(f, "<body>\n")
         write(f, "\t<h1>State of the Union Speeches</h1>\n")
-        write(f, "\t<ol>")
+        write(f, "\t<ol>\n")
         for row in eachrow(df)
             write(f, "\t\t<li>\n")
             fname = join([split(replace(row[:president], "." => ""))..., string(row[:date])], '_') * ".html"
-            open("$(dirname)/$(fname)", "w") do h
+            open(abspath("$(dirname)/$(fname)"), "w") do h
                 write(h, row[:speech])
             end
-            write(f, "\t\t\t<a href=\"$dirname/fname\">$(row[:president]) - $(row[:date])</a>\n")
+            write(f, "\t\t\t<a href=\"$(dirname)/$(fname)\">$(row[:president]) - $(row[:date])</a>\n")
             write(f, "\t\t</li>\n")
         end
-        write(f, "\t</ol>")
+        write(f, "\t</ol>\n")
         write(f, "</body>\n")
         write(f, "</html>\n")
     end

@@ -5,6 +5,6 @@ const DATEFMT = dateformat"U d, yyyy)"
 
 const USER = "postgres"
 const DBNAME = "postgres"
-const PASS = "1An780923!"
+const PASS = "postgres"
 const PORT = 5432
 const HOST = "/var/run/postgresql"
