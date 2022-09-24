@@ -1,4 +1,44 @@
 """
+    connect(user::String, pass::String, host::String, port::Int, dbname::String)
+
+Get a database connection
+
+# Arguments
+- `user::String`: Postgres Database user
+- `pass::String`: User's password
+- `host::String`: Hostname
+- `port::Int`: port number
+- `dbname::String`: Database name
+
+# Returns
+- `::LibPQ.Connection`: Postgres Connection
+
+# Examples
+```julia
+julia> conn = connect("postgres", "postgres", "localhost", 5432, "postgres")
+
+PostgreSQL connection (CONNECTION_OK) with parameters:
+  user = postgres
+  password = ********************
+  channel_binding = prefer
+  dbname = postgres
+  host = /var/run/postgresql
+  port = 5432
+  client_encoding = UTF8
+  options = -c DateStyle=ISO,YMD -c IntervalStyle=iso_8601 -c TimeZone=UTC
+  application_name = LibPQ.jl
+  sslmode = prefer
+  sslcompression = 0
+  sslsni = 1
+  ssl_min_protocol_version = TLSv1.2
+  gssencmode = prefer
+  krbsrvname = postgres
+  target_session_attrs = any
+```
+"""
+connect(user::String, pass::String, host::String, port::Int, dbname::String) = LibPQ.Connection("dbname=$dbname user=$user password=$pass port=$port host=$host")
+
+"""
     load_data(df::DataFrame)
 
 Loads a table into the database using DataFrames via STDIN.
@@ -39,12 +79,33 @@ function load_data(conn, df::DataFrame)
                 push!(rowstring, string(field))
             end
         end
-        push!(rowstring, "\n")
         join(rowstring, ',')
+        push!(rowstring, "\n")
+        join(rowstring)
     end
     copyin = LibPQ.CopyIn("COPY stateofunion FROM STDIN (FORMAT CSV);", row_strings)
     LibPQ.execute(conn, copyin)
 end
+
+
+"""
+    drop_sou_table(conn::LibPQ.Connection)
+
+Drops the State of Union table.
+
+# Arguments
+- `conn::LibPQ.Connection`: Connection to postgres
+
+# Returns
+- `::Nothing`: nothing
+
+# Examples
+```julia
+julia> drop_sou_table(conn)
+PostgreSQL Result
+```
+"""
+drop_sou_table(conn::LibPQ.Connection) = LibPQ.execute(conn, "DROP TABLE stateofunion;")
 
 
 """
@@ -75,6 +136,7 @@ function create_sou_table(conn::LibPQ.Connection)
              ARTICLE_ID VARCHAR(20),
              DATA_HISTORY_NODE_ID INT,
              SPEECH TEXT
+        );
     """
     LibPQ.execute(conn, create_table)
 end

@@ -43,7 +43,7 @@ end
 
 
 """
-    scrape_speeches(html::Gumbo.HTMLElement{:HTML})::DataFrame
+    scrape_speeches(html::Gumbo.HTMLElement{:HTML}; get_traces::Bool)::DataFrame
 
 Retrieves all of the SOU speeches and returns them in a DataFrame
 
@@ -58,7 +58,7 @@ Retrieves all of the SOU speeches and returns them in a DataFrame
 # Examples
 ```julia
 julia> scrape_speeches(html)
-NxM DataFrame
+221x7 DataFrame
 [...]
 ```
 """
@@ -223,6 +223,55 @@ function scrape_all_to_string(html::Gumbo.HTMLElement{:HTML})::String
         end
     end
     join(speeches)
+end
+
+
+"""
+    local_html_links(html::Gumbo.HTMLElement{:HTML}, filename::String, dirname::String)
+
+This function creates a local HTML page with the text of the speeches
+linked to from a landing page.
+
+# Arguments
+- `html::Gumbo.HTMLElement{:HTML}`: HTML object
+- `filename::String`: Landing page file path
+- `dirname::String`: The directory where the speeches are written
+
+# Returns
+- `::Cint`: A C-integer return code
+
+# Examples
+```julia
+julia> local_html_links(html)
+8
+```
+"""
+function local_html_links(html, filename::String, dirname::String="speeches")
+    df = scrape_speeches(html)
+    !isdir(dirname) && mkdir(dirname)
+    open(filename, "w") do f
+        write(f, "<!DOCTYPE html>\n")
+        write(f, "<html>\n")
+        write(f, "<head>\n")
+        write(f, "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n")
+        write(f, "\t<title>Lab 1 EC</title>\n")
+        write(f, "</head>\n")
+        write(f, "<body>\n")
+        write(f, "\t<h1>State of the Union Speeches</h1>\n")
+        write(f, "\t<ol>")
+        for row in eachrow(df)
+            write(f, "\t\t<li>\n")
+            fname = join([split(replace(row[:president], "." => ""))..., string(row[:date])], '_') * ".html"
+            open("$(dirname)/$(fname)", "w") do h
+                write(h, row[:speech])
+            end
+            write(f, "\t\t\t<a href=\"$dirname/fname\">$(row[:president]) - $(row[:date])</a>\n")
+            write(f, "\t\t</li>\n")
+        end
+        write(f, "\t</ol>")
+        write(f, "</body>\n")
+        write(f, "</html>\n")
+    end
 end
 
 

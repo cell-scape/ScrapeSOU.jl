@@ -9,8 +9,9 @@ create_app(
     filter_stdlibs=true,
     sysimage_build_args=Cmd([
         "-O3",
-        "--min-opt-level=3",
+        "--min-optlevel=3",
         "-g0",
+        "--threads=auto",
         "--strip-metadata",
     ])
 )

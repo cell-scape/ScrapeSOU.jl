@@ -74,6 +74,7 @@ julia> julia_main()
 function julia_main()::Cint
     ap = argparser()
     args = parse_args(ARGS, ap, as_symbols=true)
+    conn = connect(USER, PASS, HOST, PORT, DBNAME)
     try
         @info "Getting list of links..."
         html = scrape(BASE_PATH * LINKS)
@@ -88,16 +89,18 @@ function julia_main()::Cint
         @info "Writing CSV file..."
         CSV.write(args[:csvout], df)
         @info "Dropping table if exists..."
-        LibPQ.execute(CONN, "DROP TABLE stateofunion;")
+        LibPQ.execute(conn, "DROP TABLE stateofunion;")
         @info "Create table..."
-        create_sou_table(CONN)
+        create_sou_table(conn)
         @info "Load table with CSV data..."
-        load_csv_table(CONN, args[:csvout])
+        load_csv_table(conn, args[:csvout])
         limit = get(args, :limit, nothing)
         @info "Test table in Postgres..."
-        println(get_sou_table(CONN, limit=limit))
+        println(get_sou_table(conn, limit=limit))
+        close(conn)
     catch
-        ex = stacktrace(catch_backtrace)
+        close(conn)
+        ex = stacktrace(catch_backtrace())
         @error "ScrapeSOU failed:" ex
         return -1
     end
