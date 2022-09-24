@@ -9,7 +9,7 @@ Multithreaded implementation that accounts for some irregularities in the links.
 
 Loads a Postgres Database from CSV file. 
 
-### Usage
+### Usage Examples
 
 ```julia
 julia> html = scrape(BASE_PATH * LINKS)

@@ -37,7 +37,7 @@ ArgParseSettings([...]
 ```
 """
 function argparser()
-    s = ArgParseSettings()
+    s = ArgParseSettings(prog="ScrapeSOU", description="Scrapes State of Union addresses from a website", epilog="---", autofix_names=true)
     @add_arg_table! s begin
         "--string", "-s"
             help = "Dump as a string"
@@ -52,6 +52,26 @@ function argparser()
         "--local-speeches"
             help = "Create landing page and local copies of the speeches"
             action = :store_true
+        "--user", "-u"
+            help = "Postgres Username"
+            arg_type = String
+            default = "postgres"
+        "--pass", "-p"
+            help = "Postgres Password"
+            arg_type = String
+            default = "postgres"
+        "--hostname", "-n"
+            help = "Hostname/path"
+            arg_type = String
+            default = "/var/run/postgresql"
+        "--port", "-p"
+            help = "Port"
+            arg_type = Int
+            default = 5432
+        "--dbname", "-d"
+            help = "Database name"
+            arg_type = String
+            default = "postgres"
     end
     return s
 end
@@ -77,7 +97,7 @@ julia> julia_main()
 function julia_main()::Cint
     ap = argparser()
     args = parse_args(ARGS, ap, as_symbols=true)
-    conn = connect(USER, PASS, HOST, PORT, DBNAME)
+    conn = connect(args[:user], args[:pass], args[:hostname], args[:port], args[:dbname])
     try
         @info "Getting list of links..."
         html = scrape(BASE_PATH * LINKS)
